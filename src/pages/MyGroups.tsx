@@ -223,6 +223,14 @@ export default function MyGroups() {
                       {g.pending === 'true' && <Tag color="amber">待审核</Tag>}
                       {g.hasPendingEdit === 'true' && <Tag color="amber">改动待审核</Tag>}
                       {g.pending !== 'true' && g.hasPendingEdit !== 'true' && <Tag color="green">已通过</Tag>}
+                      {isAdmin && g.userName && (
+                        <Link
+                          to={`/dashboard/users?q=${encodeURIComponent(g.userName)}`}
+                          className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400 hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-colors"
+                        >
+                          {g.userName}
+                        </Link>
+                      )}
                     </div>
                     <div className="text-xs text-gray-500 truncate">
                       {g.orgName} · {g.region} · 群号 {g.groupId}

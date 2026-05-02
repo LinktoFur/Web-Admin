@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Check, X as XIcon, Building2, Users as UsersIcon, FileEdit, Sparkles } from 'lucide-react'
 import { admin, type PendingGroup } from '~/lib/api'
 import { Card, Tag, Empty, Button } from '~/components/ui'
@@ -90,13 +91,18 @@ export default function PendingReview() {
                       </span>
                     </Tag>
                     <Tag>{g.type === 'SCHOOL' ? '院校' : '地区'}</Tag>
+                    {g.userName && (
+                      <Link
+                        to={`/dashboard/users?q=${encodeURIComponent(g.userName)}`}
+                        className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400 hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-colors"
+                      >
+                        {g.userName}
+                      </Link>
+                    )}
                   </div>
 
                   <div className="mt-1 text-sm text-gray-600 dark:text-gray-300">
                     {g.orgName} · {g.region} · 群号 <span className="font-mono">{g.groupId}</span>
-                  </div>
-                  <div className="mt-1 text-xs text-gray-500">
-                    提交者 {g.userName || g.userId || '未知'}
                   </div>
 
                   {g.pendingType === 'edit' && g.pendingEdit && Object.keys(g.pendingEdit).length > 0 && (

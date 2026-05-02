@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { UserPlus, Search, ShieldCheck, Ban, ShieldAlert, RotateCcw } from 'lucide-react'
 import { admin, type AdminUser } from '~/lib/api'
 import { Button, Input, Card, Tag, Empty } from '~/components/ui'
@@ -17,9 +17,11 @@ type Action =
 
 export default function UserManagement() {
   const toast = useToast()
+  const [params] = useSearchParams()
+  const initialQ = params.get('q') || ''
   const [list, setList] = useState<AdminUser[]>([])
-  const [q, setQ] = useState('')
-  const [searchQ, setSearchQ] = useState('')
+  const [q, setQ] = useState(initialQ)
+  const [searchQ, setSearchQ] = useState(initialQ.toLowerCase())
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState('')
   const [action, setAction] = useState<Action>(null)
