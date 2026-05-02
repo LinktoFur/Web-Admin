@@ -218,9 +218,9 @@ export default function MyGroups() {
       {filtered.length > 0 && (
         <div className="grid gap-2">
           {paged.map((g) => (
-            <Card key={g.id} className="px-4 py-3 hover:shadow-diffuse-light dark:hover:shadow-warm transition-shadow">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0 flex-1">
+            <Card key={g.id} className="p-4 hover:shadow-diffuse-light dark:hover:shadow-warm transition-shadow">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
                   <div
                     className={cn(
                       'w-8 h-8 rounded-lg flex items-center justify-center shrink-0',
@@ -233,7 +233,7 @@ export default function MyGroups() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-medium text-gray-900 dark:text-white truncate">{g.groupName}</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{g.groupName}</span>
                       {g.pending === 'true' && <Tag color="amber">待审核</Tag>}
                       {g.hasPendingEdit === 'true' && <Tag color="amber">改动待审核</Tag>}
                       {g.pending !== 'true' && g.hasPendingEdit !== 'true' && <Tag color="green">已通过</Tag>}
@@ -246,12 +246,12 @@ export default function MyGroups() {
                         </Link>
                       )}
                     </div>
-                    <div className="text-xs text-gray-500 truncate">
+                    <div className="mt-1 text-xs text-gray-500 break-all">
                       {g.orgName} · {g.region} · 群号 {g.groupId}
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 shrink-0">
+                <div className="flex items-center gap-4 shrink-0 sm:ml-2 pl-11 sm:pl-0 pt-1 sm:pt-0 border-t sm:border-0 border-gray-100 dark:border-white/5">
                   <Link
                     to={`/dashboard/groups/${g.id}/edit`}
                     className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-brand-400 transition-colors"
