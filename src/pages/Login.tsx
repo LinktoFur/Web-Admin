@@ -17,8 +17,9 @@ export default function Login() {
   const [mode, setMode] = useState<Mode>('login')
   const [step, setStep] = useState<1 | 2>(1)
 
-  const [email, setEmail] = useState('')
+  const [qq, setQq] = useState('')
   const [name, setName] = useState('')
+  const email = qq ? `${qq}@qq.com` : ''
   const [captchaId, setCaptchaId] = useState('')
   const [captchaImg, setCaptchaImg] = useState('')
   const [captchaAnswer, setCaptchaAnswer] = useState('')
@@ -129,8 +130,20 @@ export default function Login() {
 
           {step === 1 ? (
             <form onSubmit={submitStep1} className="space-y-4">
-              <Field label="邮箱" hint="仅支持 qq.com">
-                <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Field label="QQ号" hint="登录将以 QQ邮箱 接收验证码">
+                <div className="relative">
+                  <Input
+                    required
+                    value={qq}
+                    onChange={(e) => setQq(e.target.value.replace(/\D/g, ''))}
+                    inputMode="numeric"
+                    placeholder="123456"
+                    className="pr-20 font-mono"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 pointer-events-none">
+                    @qq.com
+                  </span>
+                </div>
               </Field>
 
               {mode === 'register' && (
