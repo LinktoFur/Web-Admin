@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { UserPlus, Search, ShieldCheck, Ban, ShieldAlert, RotateCcw } from 'lucide-react'
 import { admin, type AdminUser } from '~/lib/api'
@@ -19,6 +19,7 @@ export default function UserManagement() {
   const toast = useToast()
   const [list, setList] = useState<AdminUser[]>([])
   const [q, setQ] = useState('')
+  const [searchQ, setSearchQ] = useState('')
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState('')
   const [action, setAction] = useState<Action>(null)
@@ -42,21 +43,18 @@ export default function UserManagement() {
     loadAll()
   }, [])
 
-  async function runSearch(e: React.FormEvent) {
+  function runSearch(e: React.FormEvent) {
     e.preventDefault()
-    if (!q.trim()) return loadAll()
-    setLoading(true)
-    setErr('')
-    try {
-      const u = await admin.userSearch(q.trim())
-      setList(u as any)
-      setPage(1)
-    } catch (e: any) {
-      setErr(e.message)
-    } finally {
-      setLoading(false)
-    }
+    setSearchQ(q.trim().toLowerCase())
+    setPage(1)
   }
+
+  const filtered = useMemo(() => {
+    if (!searchQ) return list
+    return list.filter(
+      (u) => u.name.toLowerCase().includes(searchQ) || u.email.toLowerCase().includes(searchQ),
+    )
+  }, [list, searchQ])
 
   async function ban(u: AdminUser) {
     try {
@@ -88,9 +86,9 @@ export default function UserManagement() {
     }
   }
 
-  const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE))
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
-  const paged = list.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
+  const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
   return (
     <div className="max-w-5xl">
@@ -123,7 +121,8 @@ export default function UserManagement() {
           type="button"
           onClick={() => {
             setQ('')
-            loadAll()
+            setSearchQ('')
+            setPage(1)
           }}
         >
           <RotateCcw size={14} />
@@ -135,8 +134,9 @@ export default function UserManagement() {
       {err && <div className="text-sm text-red-500">{err}</div>}
 
       {!loading && !err && list.length === 0 && <Empty>暂无用户数据</Empty>}
+      {!loading && list.length > 0 && filtered.length === 0 && <Empty>没有匹配的用户</Empty>}
 
-      {!loading && list.length > 0 && (
+      {!loading && filtered.length > 0 && (
         <Card className="overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 dark:bg-zinc-700/40 text-gray-600 dark:text-gray-300 text-left text-xs uppercase tracking-wider">
@@ -199,7 +199,7 @@ export default function UserManagement() {
         </Card>
       )}
 
-      {list.length > PAGE_SIZE && (
+      {filtered.length > PAGE_SIZE && (
         <Pagination page={safePage} total={totalPages} onChange={setPage} />
       )}
 
