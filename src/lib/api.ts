@@ -19,7 +19,6 @@ export class ApiError extends Error {
 export async function req<T = any>(path: string, init?: RequestInit): Promise<T> {
   const t = token.get()
   const headers: Record<string, string> = {
-    'content-type': 'application/json',
     ...((init?.headers as Record<string, string>) || {}),
   }
   if (t) headers.Authorization = `Bearer ${t}`
@@ -40,8 +39,17 @@ export async function req<T = any>(path: string, init?: RequestInit): Promise<T>
   return data.message as T
 }
 
-const post = <T = any>(p: string, body?: any) =>
-  req<T>(p, { method: 'POST', body: body ? JSON.stringify(body) : undefined })
+function toForm(body?: Record<string, any>) {
+  if (!body) return undefined
+  const f = new URLSearchParams()
+  Object.entries(body).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && v !== '') f.set(k, String(v))
+  })
+  return f
+}
+
+const post = <T = any>(p: string, body?: Record<string, any>) =>
+  req<T>(p, { method: 'POST', body: toForm(body) })
 
 const get = <T = any>(p: string) => req<T>(p)
 
