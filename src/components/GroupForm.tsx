@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Button, Input, Select, Field, Card } from '~/components/ui'
 
 export type GroupFormValue = {
   groupId: string
@@ -41,66 +42,102 @@ export default function GroupForm({ initial, onSubmit, busy, err, submitLabel, s
   }
 
   return (
-    <form onSubmit={submit} className="space-y-4 rounded-lg border border-neutral-200 bg-white p-6">
-      <Field label="群类型">
-        <select value={type} onChange={(e) => setType(e.target.value as any)} className={input}>
-          <option value="SCHOOL">学校群</option>
-          <option value="REGION">地区群</option>
-        </select>
-      </Field>
+    <Card className="p-6">
+      <form onSubmit={submit} className="space-y-4">
+        <Field label="群类型" required>
+          <Select value={type} onChange={(e) => setType(e.target.value as any)}>
+            <option value="SCHOOL">院校群</option>
+            <option value="REGION">地区联合群</option>
+          </Select>
+        </Field>
 
-      <Field label="群名">
-        <input required value={groupName} onChange={(e) => setGroupName(e.target.value)} className={input} />
-      </Field>
+        <Field label="群名" required>
+          <Input
+            required
+            value={groupName}
+            onChange={(e) => setGroupName(e.target.value)}
+            placeholder={type === 'SCHOOL' ? '广东XX大学Furry社' : '广东地区联合群'}
+          />
+        </Field>
 
-      <Field label="QQ 群号">
-        <input required value={groupId} onChange={(e) => setGroupId(e.target.value)} className={input} />
-      </Field>
+        <Field label="QQ 群号" required>
+          <Input
+            required
+            value={groupId}
+            onChange={(e) => setGroupId(e.target.value.replace(/\D/g, ''))}
+            inputMode="numeric"
+          />
+        </Field>
 
-      <Field label={type === 'SCHOOL' ? '学校名' : '组织名'}>
-        <input required value={orgName} onChange={(e) => setOrgName(e.target.value)} className={input} />
-      </Field>
+        <Field label={type === 'SCHOOL' ? '学校名' : '组织名'} required>
+          <Input
+            required
+            value={orgName}
+            onChange={(e) => setOrgName(e.target.value)}
+            placeholder={type === 'SCHOOL' ? '广东XX大学' : 'XX联合社'}
+          />
+        </Field>
 
-      <Field label="地区">
-        <input required value={region} onChange={(e) => setRegion(e.target.value)} className={input} />
-      </Field>
+        <Field label="地区" required>
+          <Input required value={region} onChange={(e) => setRegion(e.target.value)} placeholder="广东 / 四川 / 日本" />
+        </Field>
 
-      <Field label="入群方式 链接或暗号等">
-        <input required value={joinEntry} onChange={(e) => setJoinEntry(e.target.value)} className={input} />
-      </Field>
+        <Field label="入群方式" required hint="链接 暗号或问卷">
+          <Input required value={joinEntry} onChange={(e) => setJoinEntry(e.target.value)} />
+        </Field>
 
-      {showFlags && (
-        <div className="space-y-2 pt-2">
-          <Toggle checked={showContact} onChange={setShowContact} label="公开联系方式" />
-          <Toggle checked={acceptApply} onChange={setAcceptApply} label="接受用户申请" />
+        {showFlags && (
+          <div className="pt-2 space-y-3 border-t border-gray-100 dark:border-white/5">
+            <Toggle
+              checked={showContact}
+              onChange={setShowContact}
+              label="公开联系方式"
+              hint="开启后网站直接展示你的入群方式"
+            />
+            <Toggle
+              checked={acceptApply}
+              onChange={setAcceptApply}
+              label="接收网站申请"
+              hint="关闭后用户无法通过网站申请加群"
+            />
+          </div>
+        )}
+
+        {err && <p className="text-sm text-red-500">{err}</p>}
+
+        <Button busy={busy} type="submit">
+          {submitLabel}
+        </Button>
+      </form>
+    </Card>
+  )
+}
+
+function Toggle({
+  checked,
+  onChange,
+  label,
+  hint,
+}: {
+  checked: boolean
+  onChange: (v: boolean) => void
+  label: string
+  hint?: string
+}) {
+  return (
+    <label className="flex items-start gap-3 cursor-pointer group">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="mt-0.5 w-4 h-4 rounded border-gray-300 text-brand-400 focus:ring-brand-400/30"
+      />
+      <div className="text-sm">
+        <div className="font-medium text-gray-700 dark:text-gray-200 group-hover:text-brand-400 transition-colors">
+          {label}
         </div>
-      )}
-
-      {err && <div className="text-sm text-red-600">{err}</div>}
-
-      <button disabled={busy} className="rounded-md bg-black text-white px-5 py-2.5 hover:bg-neutral-800 disabled:opacity-60">
-        {busy ? '请稍候' : submitLabel}
-      </button>
-    </form>
-  )
-}
-
-const input = 'w-full rounded-md border border-neutral-300 px-3 py-2 outline-none focus:border-black'
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="block">
-      <span className="text-sm text-neutral-600">{label}</span>
-      <div className="mt-1">{children}</div>
-    </label>
-  )
-}
-
-function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
-  return (
-    <label className="flex items-center gap-2 text-sm">
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-      <span>{label}</span>
+        {hint && <div className="text-xs text-gray-500 mt-0.5">{hint}</div>}
+      </div>
     </label>
   )
 }

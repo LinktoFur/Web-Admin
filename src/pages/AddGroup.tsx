@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
+import { ArrowLeft } from 'lucide-react'
 import GroupForm, { type GroupFormValue } from '~/components/GroupForm'
 import { groups } from '~/lib/api'
 
@@ -23,12 +24,15 @@ export default function AddGroup() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-semibold">添加群组</h1>
-      <p className="mt-1 text-sm text-neutral-500">提交后会进入审核队列</p>
+      <Link to="/dashboard/groups" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white mb-4">
+        <ArrowLeft size={14} />
+        返回
+      </Link>
 
-      <div className="mt-6">
-        <GroupForm onSubmit={submit} busy={busy} err={err} submitLabel="提交审核" />
-      </div>
+      <h1 className="text-2xl font-medium text-gray-900 dark:text-white">添加群组</h1>
+      <p className="text-sm text-gray-500 mt-1 mb-6">提交后会进入审核队列</p>
+
+      <GroupForm onSubmit={submit} busy={busy} err={err} submitLabel="提交审核" />
     </div>
   )
 }
