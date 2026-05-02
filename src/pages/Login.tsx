@@ -1,16 +1,21 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Moon, Sun } from 'lucide-react'
 import { auth, token } from '~/lib/api'
 import { useAuth } from '~/lib/auth'
+import { useTheme } from '~/lib/theme'
+import { Button, Input, Field, Card } from '~/components/ui'
+import logo from '~/assets/logo.png'
+import { cn } from '~/lib/cn'
 
 type Mode = 'login' | 'register'
-type Step = 1 | 2
 
 export default function Login() {
   const nav = useNavigate()
   const { refresh } = useAuth()
+  const { theme, toggle } = useTheme()
   const [mode, setMode] = useState<Mode>('login')
-  const [step, setStep] = useState<Step>(1)
+  const [step, setStep] = useState<1 | 2>(1)
 
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
@@ -88,127 +93,110 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-sm rounded-lg border border-neutral-200 bg-white p-8 shadow-sm">
-        <h1 className="text-xl font-semibold">Linktofur 控制台</h1>
+    <div className="min-h-screen flex items-center justify-center px-4 relative">
+      <button
+        onClick={toggle}
+        className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full border border-gray-200 dark:border-zinc-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all active:scale-95"
+        aria-label="切换主题"
+      >
+        {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
+      </button>
 
-        <div className="mt-4 flex gap-2 text-sm">
-          <button
-            onClick={() => reset('login')}
-            className={tab(mode === 'login')}
-          >
-            登录
-          </button>
-          <button
-            onClick={() => reset('register')}
-            className={tab(mode === 'register')}
-          >
-            注册
-          </button>
+      <div className="w-full max-w-sm animate-fade-in">
+        <div className="flex flex-col items-center mb-6">
+          <img src={logo} alt="Linktofur" width={48} height={48} className="h-12 w-auto mb-3" />
+          <h1 className="text-xl font-medium text-gray-900 dark:text-white">Linktofur 控制台</h1>
+          <p className="text-sm text-gray-500 mt-1">登录以管理群组和用户</p>
         </div>
 
-        {step === 1 ? (
-          <form onSubmit={submitStep1} className="mt-6 space-y-4">
-            <Field label="邮箱 仅支持 qq.com">
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={input}
-              />
-            </Field>
+        <Card className="p-6">
+          <div className="flex gap-2 text-sm mb-6">
+            {(['login', 'register'] as Mode[]).map((m) => (
+              <button
+                key={m}
+                onClick={() => reset(m)}
+                className={cn(
+                  'flex-1 py-2 rounded-xl transition-all',
+                  mode === m
+                    ? 'bg-brand-400 text-white'
+                    : 'border border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-gray-300 hover:border-brand-400',
+                )}
+              >
+                {m === 'login' ? '登录' : '注册'}
+              </button>
+            ))}
+          </div>
 
-            {mode === 'register' && (
-              <Field label="昵称">
-                <input
+          {step === 1 ? (
+            <form onSubmit={submitStep1} className="space-y-4">
+              <Field label="邮箱" hint="仅支持 qq.com">
+                <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+              </Field>
+
+              {mode === 'register' && (
+                <Field label="昵称" required>
+                  <Input required value={name} onChange={(e) => setName(e.target.value)} />
+                </Field>
+              )}
+
+              <Field label="人机验证" required>
+                <div className="flex items-center gap-3">
+                  <Input
+                    required
+                    value={captchaAnswer}
+                    onChange={(e) => setCaptchaAnswer(e.target.value)}
+                    className="flex-1 text-center font-mono tracking-widest"
+                    maxLength={4}
+                  />
+                  {captchaImg && (
+                    <img
+                      src={captchaImg}
+                      alt="验证码"
+                      onClick={loadCaptcha}
+                      className="h-11 cursor-pointer rounded-lg border border-gray-200 dark:border-zinc-600"
+                      title="点击换一张"
+                    />
+                  )}
+                </div>
+              </Field>
+
+              {err && <p className="text-sm text-red-500">{err}</p>}
+
+              <Button busy={busy} type="submit" className="w-full">
+                下一步
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={submitStep2} className="space-y-4">
+              <Field label="邮箱验证码" required>
+                <Input
                   required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className={input}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  className="text-center font-mono text-lg tracking-widest"
+                  maxLength={6}
+                  inputMode="numeric"
                 />
               </Field>
-            )}
 
-            <Field label="验证码">
-              <div className="flex items-end gap-2">
-                <input
-                  required
-                  value={captchaAnswer}
-                  onChange={(e) => setCaptchaAnswer(e.target.value)}
-                  className={input + ' flex-1'}
-                />
-                {captchaImg && (
-                  <img
-                    src={captchaImg}
-                    alt="captcha"
-                    onClick={loadCaptcha}
-                    className="h-10 cursor-pointer rounded border border-neutral-300"
-                    title="点击换一张"
-                  />
-                )}
-              </div>
-            </Field>
+              {info && <p className="text-sm text-green-600 dark:text-green-400">{info}</p>}
+              {err && <p className="text-sm text-red-500">{err}</p>}
 
-            {err && <Msg color="red">{err}</Msg>}
+              <Button busy={busy} type="submit" className="w-full">
+                {mode === 'login' ? '登录' : '注册并登录'}
+              </Button>
 
-            <button disabled={busy} className={btn}>
-              {busy ? '请稍候' : '下一步'}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={submitStep2} className="mt-6 space-y-4">
-            <Field label="邮箱验证码">
-              <input
-                required
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                className={input}
-              />
-            </Field>
-
-            {info && <Msg color="green">{info}</Msg>}
-            {err && <Msg color="red">{err}</Msg>}
-
-            <button disabled={busy} className={btn}>
-              {busy ? '请稍候' : mode === 'login' ? '登录' : '注册并登录'}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setStep(1)}
-              className="w-full text-sm text-neutral-500 hover:text-black"
-            >
-              返回上一步
-            </button>
-          </form>
-        )}
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                className="block w-full text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white"
+              >
+                返回上一步
+              </button>
+            </form>
+          )}
+        </Card>
       </div>
     </div>
   )
-}
-
-const input =
-  'w-full rounded-md border border-neutral-300 px-3 py-2 outline-none focus:border-black'
-
-const btn =
-  'w-full rounded-md bg-black text-white py-2.5 hover:bg-neutral-800 disabled:opacity-60'
-
-const tab = (active: boolean) =>
-  active
-    ? 'flex-1 py-2 rounded-md bg-black text-white'
-    : 'flex-1 py-2 rounded-md border border-neutral-300 hover:border-black'
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="block">
-      <span className="text-sm text-neutral-600">{label}</span>
-      <div className="mt-1">{children}</div>
-    </label>
-  )
-}
-
-function Msg({ children, color }: { children: React.ReactNode; color: 'red' | 'green' }) {
-  const cls = color === 'red' ? 'text-red-600' : 'text-green-700'
-  return <div className={`text-sm ${cls}`}>{children}</div>
 }
