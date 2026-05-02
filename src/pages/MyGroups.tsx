@@ -111,7 +111,7 @@ export default function MyGroups() {
         <Menu as="div" className="relative shrink-0">
           {({ open }) => (
             <>
-              <Menu.Button className="h-[46px] w-full sm:w-44 px-4 flex items-center justify-between gap-2 rounded-xl border border-gray-200 dark:border-zinc-600 bg-gray-50 dark:bg-zinc-700 text-sm font-medium text-gray-700 dark:text-gray-200 hover:border-brand-400 transition-colors outline-none">
+              <Menu.Button className="w-full sm:w-44 px-4 py-3 flex items-center justify-between gap-2 rounded-xl border border-gray-200 dark:border-zinc-600 bg-gray-50 dark:bg-zinc-700 text-gray-700 dark:text-gray-200 hover:border-brand-400 transition-colors outline-none">
                 <span className="flex items-center gap-2">
                   <ArrowDownUp size={14} className="text-gray-400" />
                   {sortOptions.find((o) => o.id === sort)?.label}
