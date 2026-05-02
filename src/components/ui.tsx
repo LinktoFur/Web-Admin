@@ -22,7 +22,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ref={ref}
       disabled={disabled || busy}
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
+        'inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
         btn[variant],
         className,
       )}
@@ -36,25 +36,25 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button'
 
 const inputBase =
-  'w-full rounded-xl border border-gray-200 dark:border-zinc-600 bg-gray-50 dark:bg-zinc-700 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400/30 transition-all'
+  'w-full rounded-lg border border-gray-200 dark:border-zinc-600 bg-gray-50 dark:bg-zinc-700 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400/30 transition-all'
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
   ({ className, ...rest }, ref) => (
-    <input ref={ref} className={cn(inputBase, 'px-4 py-3', className)} {...rest} />
+    <input ref={ref} className={cn(inputBase, 'px-3 py-2', className)} {...rest} />
   ),
 )
 Input.displayName = 'Input'
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(
   ({ className, ...rest }, ref) => (
-    <textarea ref={ref} className={cn(inputBase, 'px-4 py-3 resize-none', className)} {...rest} />
+    <textarea ref={ref} className={cn(inputBase, 'px-3 py-2 resize-none', className)} {...rest} />
   ),
 )
 Textarea.displayName = 'Textarea'
 
 export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement>>(
   ({ className, children, ...rest }, ref) => (
-    <select ref={ref} className={cn(inputBase, 'px-4 py-3', className)} {...rest}>
+    <select ref={ref} className={cn(inputBase, 'px-3 py-2', className)} {...rest}>
       {children}
     </select>
   ),
@@ -71,12 +71,12 @@ type FieldProps = {
 export function Field({ label, required, hint, children }: FieldProps) {
   return (
     <label className="block">
-      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
         {label}
         {required && <span className="text-red-400 ml-1">*</span>}
         {hint && <span className="text-gray-400 font-normal ml-1">{hint}</span>}
       </span>
-      <div className="mt-1.5">{children}</div>
+      <div className="mt-1">{children}</div>
     </label>
   )
 }
@@ -87,7 +87,7 @@ export function Card({ className, children }: CardProps) {
   return (
     <div
       className={cn(
-        'rounded-2xl border border-gray-100 dark:border-white/5 bg-white dark:bg-zinc-800 shadow-diffuse-sm-light dark:shadow-warm-sm',
+        'rounded-xl border border-gray-100 dark:border-white/5 bg-white dark:bg-zinc-800 shadow-diffuse-sm-light dark:shadow-warm-sm',
         className,
       )}
     >
@@ -116,7 +116,7 @@ export function Tag({ color = 'gray', children }: TagProps) {
 
 export function Empty({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-dashed border-gray-300 dark:border-zinc-700 p-12 text-center text-gray-500">
+    <div className="rounded-xl border border-dashed border-gray-300 dark:border-zinc-700 p-8 text-center text-sm text-gray-500">
       {children}
     </div>
   )

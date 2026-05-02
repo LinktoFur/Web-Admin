@@ -80,7 +80,7 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="flex-1 p-5 overflow-y-auto">
         <div className="animate-fade-in">
           <Routes>
             <Route index element={<Navigate to="groups" replace />} />
