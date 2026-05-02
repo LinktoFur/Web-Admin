@@ -139,66 +139,112 @@ export default function UserManagement() {
       {!loading && list.length > 0 && filtered.length === 0 && <Empty>没有匹配的用户</Empty>}
 
       {!loading && filtered.length > 0 && (
-        <Card className="overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 dark:bg-zinc-700/40 text-gray-600 dark:text-gray-300 text-left text-xs uppercase tracking-wider">
-              <tr>
-                <th className="px-4 py-2.5 font-medium">昵称</th>
-                <th className="px-4 py-2.5 font-medium">邮箱</th>
-                <th className="px-4 py-2.5 font-medium">权限</th>
-                <th className="px-4 py-2.5 font-medium">状态</th>
-                <th className="px-4 py-2.5 font-medium text-right">操作</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-              {paged.map((u) => (
-                <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                  <td className="px-4 py-2.5 font-medium text-gray-900 dark:text-white">{u.name}</td>
-                  <td className="px-4 py-2.5 text-gray-600 dark:text-gray-300">{u.email}</td>
-                  <td className="px-4 py-2.5">
-                    {u.level === 'ADMIN' ? <Tag color="brand">管理员</Tag> : <Tag>普通</Tag>}
-                  </td>
-                  <td className="px-4 py-2.5">
-                    {u.banned === 'true' ? (
-                      <Tag color="red">已封禁</Tag>
-                    ) : u.verified === 'true' ? (
-                      <Tag color="green">正常</Tag>
-                    ) : (
-                      <Tag>未验证</Tag>
-                    )}
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <div className="flex gap-3 justify-end text-xs">
-                      <button
-                        onClick={() => setAction({ kind: 'unban', u })}
-                        className="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300 hover:text-brand-400 transition-colors"
-                      >
-                        <ShieldCheck size={12} />
-                        解封
-                      </button>
-                      <button
-                        onClick={() => setAction({ kind: 'ban', u })}
-                        className="inline-flex items-center gap-1 text-red-500 hover:text-red-600 transition-colors"
-                      >
-                        <Ban size={12} />
-                        封禁
-                      </button>
-                      {u.level !== 'ADMIN' && (
+        <>
+          <Card className="overflow-hidden hidden md:block">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 dark:bg-zinc-700/40 text-gray-600 dark:text-gray-300 text-left text-xs uppercase tracking-wider">
+                <tr>
+                  <th className="px-4 py-2.5 font-medium">昵称</th>
+                  <th className="px-4 py-2.5 font-medium">邮箱</th>
+                  <th className="px-4 py-2.5 font-medium">权限</th>
+                  <th className="px-4 py-2.5 font-medium">状态</th>
+                  <th className="px-4 py-2.5 font-medium text-right">操作</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-white/5">
+                {paged.map((u) => (
+                  <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td className="px-4 py-2.5 font-medium text-gray-900 dark:text-white">{u.name}</td>
+                    <td className="px-4 py-2.5 text-gray-600 dark:text-gray-300">{u.email}</td>
+                    <td className="px-4 py-2.5">
+                      {u.level === 'ADMIN' ? <Tag color="brand">管理员</Tag> : <Tag>普通</Tag>}
+                    </td>
+                    <td className="px-4 py-2.5">
+                      {u.banned === 'true' ? (
+                        <Tag color="red">已封禁</Tag>
+                      ) : u.verified === 'true' ? (
+                        <Tag color="green">正常</Tag>
+                      ) : (
+                        <Tag>未验证</Tag>
+                      )}
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <div className="flex gap-3 justify-end text-xs">
                         <button
-                          onClick={() => setAction({ kind: 'admin', u })}
+                          onClick={() => setAction({ kind: 'unban', u })}
                           className="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300 hover:text-brand-400 transition-colors"
                         >
-                          <ShieldAlert size={12} />
-                          设管理员
+                          <ShieldCheck size={12} />
+                          解封
                         </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
+                        <button
+                          onClick={() => setAction({ kind: 'ban', u })}
+                          className="inline-flex items-center gap-1 text-red-500 hover:text-red-600 transition-colors"
+                        >
+                          <Ban size={12} />
+                          封禁
+                        </button>
+                        {u.level !== 'ADMIN' && (
+                          <button
+                            onClick={() => setAction({ kind: 'admin', u })}
+                            className="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300 hover:text-brand-400 transition-colors"
+                          >
+                            <ShieldAlert size={12} />
+                            设管理员
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Card>
+
+          <div className="md:hidden grid gap-2">
+            {paged.map((u) => (
+              <Card key={u.id} className="p-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-medium text-gray-900 dark:text-white">{u.name}</span>
+                  {u.level === 'ADMIN' ? <Tag color="brand">管理员</Tag> : <Tag>普通</Tag>}
+                  {u.banned === 'true' ? (
+                    <Tag color="red">已封禁</Tag>
+                  ) : u.verified === 'true' ? (
+                    <Tag color="green">正常</Tag>
+                  ) : (
+                    <Tag>未验证</Tag>
+                  )}
+                </div>
+                <div className="mt-1 text-xs text-gray-500 truncate">{u.email}</div>
+                <div className="mt-2 pt-2 border-t border-gray-100 dark:border-white/5 flex gap-3 text-xs">
+                  <button
+                    onClick={() => setAction({ kind: 'unban', u })}
+                    className="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300 hover:text-brand-400 transition-colors"
+                  >
+                    <ShieldCheck size={12} />
+                    解封
+                  </button>
+                  <button
+                    onClick={() => setAction({ kind: 'ban', u })}
+                    className="inline-flex items-center gap-1 text-red-500 hover:text-red-600 transition-colors"
+                  >
+                    <Ban size={12} />
+                    封禁
+                  </button>
+                  {u.level !== 'ADMIN' && (
+                    <button
+                      onClick={() => setAction({ kind: 'admin', u })}
+                      className="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300 hover:text-brand-400 transition-colors"
+                    >
+                      <ShieldAlert size={12} />
+                      设管理员
+                    </button>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        </>
       )}
 
       {filtered.length > PAGE_SIZE && (

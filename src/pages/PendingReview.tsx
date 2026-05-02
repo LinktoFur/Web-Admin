@@ -67,8 +67,8 @@ export default function PendingReview() {
 
       <div className="grid gap-3">
         {list.map((g) => (
-          <Card key={g.id} className="p-5">
-            <div className="flex items-start justify-between gap-4">
+          <Card key={g.id} className="p-4 sm:p-5">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
               <div className="flex items-start gap-3 min-w-0 flex-1">
                 <div
                   className={cn(
@@ -125,15 +125,15 @@ export default function PendingReview() {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2 shrink-0">
-                <Button onClick={() => setAction({ kind: 'approve', g })} className="px-4 py-1.5 text-sm">
+              <div className="flex sm:flex-col gap-2 shrink-0">
+                <Button onClick={() => setAction({ kind: 'approve', g })} className="flex-1 sm:flex-none px-4 py-1.5 text-sm">
                   <Check size={14} />
                   通过
                 </Button>
                 <Button
                   variant="secondary"
                   onClick={() => setAction({ kind: 'reject', g })}
-                  className="px-4 py-1.5 text-sm"
+                  className="flex-1 sm:flex-none px-4 py-1.5 text-sm"
                 >
                   <XIcon size={14} />
                   拒绝
