@@ -24,19 +24,21 @@ export async function req<T = any>(path: string, init?: RequestInit): Promise<T>
   if (t) headers.Authorization = `Bearer ${t}`
 
   const r = await fetch(base + path, { ...init, headers })
-  let data: any = {}
+  let data: any = null
   try {
     data = await r.json()
-  } catch {
-    throw new ApiError(r.status, 'invalid response')
-  }
+  } catch {}
 
-  if (data.code !== 200) {
-    const msg = data?.message?.message || data?.message || `error ${data.code}`
-    if (data.code === 401) token.clear()
-    throw new ApiError(data.code, typeof msg === 'string' ? msg : 'request failed')
-  }
-  return data.message as T
+  const code = data?.code ?? r.status
+  if (code === 200) return data.message as T
+
+  const msg =
+    data?.message?.message ||
+    (typeof data?.message === 'string' && data.message) ||
+    `请求失败 ${code}`
+
+  if (code === 401) token.clear()
+  throw new ApiError(code, msg)
 }
 
 function toForm(body?: Record<string, any>) {
