@@ -20,8 +20,13 @@ export type GroupFormValue = {
   acceptApply?: string
 }
 
+type Initial = Partial<Omit<GroupFormValue, 'showContact' | 'acceptApply'>> & {
+  showContact?: boolean
+  acceptApply?: boolean
+}
+
 type Props = {
-  initial?: Partial<GroupFormValue & { showContact: boolean; acceptApply: boolean }>
+  initial?: Initial
   onSubmit: (v: GroupFormValue) => void
   busy?: boolean
   err?: string

@@ -212,7 +212,7 @@ export default function UserManagement() {
         message={action ? `确定要封禁用户「${action.u.name}」吗` : ''}
         confirmLabel="确认封禁"
         variant="danger"
-        onConfirm={() => action && ban(action.u)}
+        onConfirm={async () => { if (action) await ban(action.u) }}
         onClose={() => setAction(null)}
       />
       <ConfirmDialog
@@ -220,7 +220,7 @@ export default function UserManagement() {
         title="确认解封"
         message={action ? `确定要解封用户「${action.u.name}」吗` : ''}
         confirmLabel="确认解封"
-        onConfirm={() => action && unban(action.u)}
+        onConfirm={async () => { if (action) await unban(action.u) }}
         onClose={() => setAction(null)}
       />
       <ConfirmDialog
@@ -228,7 +228,7 @@ export default function UserManagement() {
         title="设为管理员"
         message={action ? `确定要将用户「${action.u.name}」设为管理员吗` : ''}
         confirmLabel="确认"
-        onConfirm={() => action && setAdmin(action.u)}
+        onConfirm={async () => { if (action) await setAdmin(action.u) }}
         onClose={() => setAction(null)}
       />
     </div>

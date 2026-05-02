@@ -143,7 +143,7 @@ export default function PendingReview() {
         title="确认通过"
         message={action ? `确定要通过群组「${action.g.groupName}」的审核吗 通过后将公开显示` : ''}
         confirmLabel="确认通过"
-        onConfirm={() => action && approve(action.g.id)}
+        onConfirm={async () => { if (action) await approve(action.g.id) }}
         onClose={() => setAction(null)}
       />
 
@@ -155,7 +155,7 @@ export default function PendingReview() {
         variant="danger"
         withReason
         reasonPlaceholder="拒绝原因 选填"
-        onConfirm={(reason) => action && reject(action.g.id, reason)}
+        onConfirm={async (reason) => { if (action) await reject(action.g.id, reason) }}
         onClose={() => setAction(null)}
       />
     </div>
