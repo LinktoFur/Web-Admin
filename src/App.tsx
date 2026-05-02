@@ -14,8 +14,9 @@ function Guard({ children, admin }: { children: JSX.Element; admin?: boolean }) 
 
 function Loading() {
   return (
-    <div className="min-h-screen flex items-center justify-center text-neutral-500">
-      加载中
+    <div className="min-h-screen flex flex-col items-center justify-center gap-3">
+      <div className="w-8 h-8 border-4 border-brand-400 border-t-transparent rounded-full animate-spin" />
+      <p className="text-sm text-gray-500">加载中</p>
     </div>
   )
 }
