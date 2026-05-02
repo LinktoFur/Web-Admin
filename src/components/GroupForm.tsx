@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { Switch } from '@headlessui/react'
 import { Button, Input, Select, Field, Card } from '~/components/ui'
+import { cn } from '~/lib/cn'
 
 export type GroupFormValue = {
   groupId: string
@@ -87,16 +89,22 @@ export default function GroupForm({ initial, onSubmit, busy, err, submitLabel, s
         </Field>
 
         {showFlags && (
-          <div className="pt-2 space-y-3 border-t border-gray-100 dark:border-white/5">
-            <Toggle
+          <div className="pt-4 space-y-1 border-t border-gray-100 dark:border-white/5">
+            <ToggleRow
               checked={showContact}
-              onChange={setShowContact}
+              onChange={(v) => {
+                setShowContact(v)
+                if (v) setAcceptApply(false)
+              }}
               label="公开联系方式"
               hint="开启后网站直接展示你的入群方式"
             />
-            <Toggle
+            <ToggleRow
               checked={acceptApply}
-              onChange={setAcceptApply}
+              onChange={(v) => {
+                setAcceptApply(v)
+                if (v) setShowContact(false)
+              }}
               label="接收网站申请"
               hint="关闭后用户无法通过网站申请加群"
             />
@@ -113,7 +121,7 @@ export default function GroupForm({ initial, onSubmit, busy, err, submitLabel, s
   )
 }
 
-function Toggle({
+function ToggleRow({
   checked,
   onChange,
   label,
@@ -125,19 +133,26 @@ function Toggle({
   hint?: string
 }) {
   return (
-    <label className="flex items-start gap-3 cursor-pointer group">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className="mt-0.5 w-4 h-4 rounded border-gray-300 text-brand-400 focus:ring-brand-400/30"
-      />
-      <div className="text-sm">
-        <div className="font-medium text-gray-700 dark:text-gray-200 group-hover:text-brand-400 transition-colors">
-          {label}
-        </div>
+    <div className="flex items-start justify-between gap-4 py-2.5">
+      <div className="min-w-0">
+        <div className="text-sm font-medium text-gray-700 dark:text-gray-200">{label}</div>
         {hint && <div className="text-xs text-gray-500 mt-0.5">{hint}</div>}
       </div>
-    </label>
+      <Switch
+        checked={checked}
+        onChange={onChange}
+        className={cn(
+          'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-300 mt-0.5',
+          checked ? 'bg-brand-400' : 'bg-gray-300 dark:bg-zinc-600',
+        )}
+      >
+        <span
+          className={cn(
+            'inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-300',
+            checked ? 'translate-x-[22px]' : 'translate-x-0.5',
+          )}
+        />
+      </Switch>
+    </div>
   )
 }
