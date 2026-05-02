@@ -1,12 +1,19 @@
-import { useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Pencil, Building2, Users as UsersIcon, Search, ArrowDownUp } from 'lucide-react'
+import { Menu, Transition } from '@headlessui/react'
+import { Plus, Pencil, Building2, Users as UsersIcon, Search, ArrowDownUp, ChevronDown, Check } from 'lucide-react'
 import { groups, type Group } from '~/lib/api'
-import { Card, Tag, Empty, Input, Select } from '~/components/ui'
+import { Card, Tag, Empty, Input } from '~/components/ui'
 import { cn } from '~/lib/cn'
 
 type Sort = 'new' | 'old' | 'name'
 type Status = 'all' | 'approved' | 'pending' | 'edit'
+
+const sortOptions: { id: Sort; label: string }[] = [
+  { id: 'new', label: '最新优先' },
+  { id: 'old', label: '最旧优先' },
+  { id: 'name', label: '按群名' },
+]
 
 const statusTabs: { id: Status; label: string }[] = [
   { id: 'all', label: '全部' },
@@ -101,14 +108,54 @@ export default function MyGroups() {
             className="pl-11"
           />
         </div>
-        <div className="relative shrink-0">
-          <ArrowDownUp size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-          <Select value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="pl-9 pr-8 sm:w-44">
-            <option value="new">最新优先</option>
-            <option value="old">最旧优先</option>
-            <option value="name">按群名</option>
-          </Select>
-        </div>
+        <Menu as="div" className="relative shrink-0">
+          {({ open }) => (
+            <>
+              <Menu.Button className="h-[46px] w-full sm:w-44 px-4 flex items-center justify-between gap-2 rounded-xl border border-gray-200 dark:border-zinc-600 bg-gray-50 dark:bg-zinc-700 text-sm font-medium text-gray-700 dark:text-gray-200 hover:border-brand-400 transition-colors outline-none">
+                <span className="flex items-center gap-2">
+                  <ArrowDownUp size={14} className="text-gray-400" />
+                  {sortOptions.find((o) => o.id === sort)?.label}
+                </span>
+                <ChevronDown
+                  size={14}
+                  className={cn('text-gray-400 transition-transform duration-200', open && 'rotate-180')}
+                />
+              </Menu.Button>
+
+              <Transition
+                as={Fragment}
+                enter="transition duration-150 ease-out"
+                enterFrom="opacity-0 -translate-y-1"
+                enterTo="opacity-100 translate-y-0"
+                leave="transition duration-100 ease-in"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <Menu.Items className="absolute right-0 sm:left-0 top-full mt-2 w-full sm:w-44 bg-white dark:bg-zinc-800 border border-gray-100 dark:border-white/5 rounded-xl shadow-diffuse-light dark:shadow-diffuse-sm overflow-hidden py-1 z-20 outline-none">
+                  {sortOptions.map((o) => (
+                    <Menu.Item key={o.id}>
+                      {({ active }) => (
+                        <button
+                          onClick={() => setSort(o.id)}
+                          className={cn(
+                            'w-full flex items-center justify-between px-4 py-2.5 text-sm text-left transition-colors',
+                            active && 'bg-gray-50 dark:bg-zinc-700',
+                            sort === o.id
+                              ? 'text-brand-600 dark:text-brand-300 bg-brand-50/50 dark:bg-brand-900/10'
+                              : 'text-gray-700 dark:text-gray-300',
+                          )}
+                        >
+                          <span>{o.label}</span>
+                          {sort === o.id && <Check size={14} />}
+                        </button>
+                      )}
+                    </Menu.Item>
+                  ))}
+                </Menu.Items>
+              </Transition>
+            </>
+          )}
+        </Menu>
       </div>
 
       <div className="flex flex-wrap gap-1.5 mb-4">
