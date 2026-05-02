@@ -1,10 +1,12 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Menu, Transition } from '@headlessui/react'
-import { Plus, Pencil, Building2, Users as UsersIcon, Search, ArrowDownUp, ChevronDown, Check } from 'lucide-react'
+import { Plus, Pencil, Building2, Users as UsersIcon, Search, ArrowDownUp, ChevronDown, Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { groups, type Group } from '~/lib/api'
 import { Card, Tag, Empty, Input } from '~/components/ui'
 import { cn } from '~/lib/cn'
+
+const PAGE_SIZE = 10
 
 type Sort = 'new' | 'old' | 'name'
 type Status = 'all' | 'approved' | 'pending' | 'edit'
@@ -36,6 +38,11 @@ export default function MyGroups() {
   const [q, setQ] = useState('')
   const [sort, setSort] = useState<Sort>('new')
   const [status, setStatus] = useState<Status>('all')
+  const [page, setPage] = useState(1)
+
+  useEffect(() => {
+    setPage(1)
+  }, [q, sort, status])
 
   async function load() {
     setLoading(true)
@@ -81,6 +88,10 @@ export default function MyGroups() {
     })
     return m
   }, [list])
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const safePage = Math.min(page, totalPages)
+  const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
   return (
     <div className="max-w-5xl">
@@ -187,7 +198,7 @@ export default function MyGroups() {
 
       {filtered.length > 0 && (
         <div className="grid gap-3">
-          {filtered.map((g) => (
+          {paged.map((g) => (
             <Card key={g.id} className="p-5 hover:shadow-diffuse-light dark:hover:shadow-warm transition-shadow">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3 min-w-0 flex-1">
@@ -225,6 +236,62 @@ export default function MyGroups() {
           ))}
         </div>
       )}
+
+      {filtered.length > PAGE_SIZE && (
+        <Pagination page={safePage} total={totalPages} onChange={setPage} />
+      )}
+    </div>
+  )
+}
+
+function pageRange(current: number, total: number): (number | '...')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
+  const out: (number | '...')[] = [1]
+  const start = Math.max(2, current - 1)
+  const end = Math.min(total - 1, current + 1)
+  if (start > 2) out.push('...')
+  for (let i = start; i <= end; i++) out.push(i)
+  if (end < total - 1) out.push('...')
+  out.push(total)
+  return out
+}
+
+function Pagination({ page, total, onChange }: { page: number; total: number; onChange: (p: number) => void }) {
+  const pages = pageRange(page, total)
+  return (
+    <div className="mt-6 flex items-center justify-center gap-1.5">
+      <button
+        onClick={() => onChange(page - 1)}
+        disabled={page <= 1}
+        className="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-gray-300 hover:border-brand-400 hover:text-brand-400 disabled:opacity-40 disabled:hover:border-gray-200 disabled:hover:text-gray-600 dark:disabled:hover:border-zinc-700 dark:disabled:hover:text-gray-300 disabled:cursor-not-allowed transition-colors"
+      >
+        <ChevronLeft size={16} />
+      </button>
+      {pages.map((p, i) =>
+        p === '...' ? (
+          <span key={`e${i}`} className="px-1.5 text-gray-400 text-sm">…</span>
+        ) : (
+          <button
+            key={p}
+            onClick={() => onChange(p)}
+            className={cn(
+              'min-w-9 h-9 px-2 rounded-lg text-sm font-medium transition-colors',
+              p === page
+                ? 'bg-brand-400 text-white'
+                : 'border border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-gray-300 hover:border-brand-400 hover:text-brand-400',
+            )}
+          >
+            {p}
+          </button>
+        ),
+      )}
+      <button
+        onClick={() => onChange(page + 1)}
+        disabled={page >= total}
+        className="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-gray-300 hover:border-brand-400 hover:text-brand-400 disabled:opacity-40 disabled:hover:border-gray-200 disabled:hover:text-gray-600 dark:disabled:hover:border-zinc-700 dark:disabled:hover:text-gray-300 disabled:cursor-not-allowed transition-colors"
+      >
+        <ChevronRight size={16} />
+      </button>
     </div>
   )
 }
