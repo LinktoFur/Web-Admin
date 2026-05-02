@@ -1,4 +1,4 @@
-const base = import.meta.env.VITE_API_BASE || 'http://localhost:8080'
+const base = 'https://api.linktofur.net'
 
 const TOKEN_KEY = 'linktofur.token'
 
