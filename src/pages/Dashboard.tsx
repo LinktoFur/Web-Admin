@@ -59,7 +59,21 @@ export default function Dashboard() {
         <div className="p-3 border-t border-gray-100 dark:border-white/5">
           <div className="flex items-center justify-between mb-3 px-1">
             <div className="min-w-0 flex-1">
-              <div className="font-medium text-sm truncate text-gray-900 dark:text-white">{me?.name}</div>
+              <div className="flex items-center gap-1.5">
+                <span className="font-medium text-sm truncate text-gray-900 dark:text-white">{me?.name}</span>
+                {me && (
+                  <span
+                    className={cn(
+                      'px-1.5 py-0.5 rounded-full text-[10px] font-medium shrink-0',
+                      isAdmin
+                        ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                        : 'bg-gray-100 text-gray-600 dark:bg-zinc-700 dark:text-gray-300',
+                    )}
+                  >
+                    {isAdmin ? '管理员' : '普通'}
+                  </span>
+                )}
+              </div>
               <div className="text-xs text-gray-500 truncate">{me?.email}</div>
             </div>
             <button
