@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from '~/lib/auth'
+import { ToastProvider } from '~/lib/toast'
 import Login from '~/pages/Login'
 import Dashboard from '~/pages/Dashboard'
 
@@ -28,19 +29,21 @@ function Home() {
 export default function App() {
   return (
     <AuthProvider>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/dashboard/*"
-          element={
-            <Guard>
-              <Dashboard />
-            </Guard>
-          }
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <ToastProvider>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/dashboard/*"
+            element={
+              <Guard>
+                <Dashboard />
+              </Guard>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </ToastProvider>
     </AuthProvider>
   )
 }
