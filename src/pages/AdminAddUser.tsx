@@ -1,24 +1,26 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
+import { ArrowLeft } from 'lucide-react'
 import { admin } from '~/lib/api'
+import { Button, Input, Field, Card } from '~/components/ui'
+import { useToast } from '~/lib/toast'
 
 export default function AdminAddUser() {
   const nav = useNavigate()
+  const toast = useToast()
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
-  const [ok, setOk] = useState('')
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setBusy(true)
     setErr('')
-    setOk('')
     try {
       const r = await admin.addUser({ email, name })
-      setOk(`已添加 ${r.name}`)
-      setTimeout(() => nav('/dashboard/users', { replace: true }), 800)
+      toast.ok(`已添加 ${r.name}`)
+      setTimeout(() => nav('/dashboard/users', { replace: true }), 600)
     } catch (e: any) {
       setErr(e.message)
     } finally {
@@ -28,50 +30,34 @@ export default function AdminAddUser() {
 
   return (
     <div className="max-w-md">
-      <h1 className="text-2xl font-semibold">添加用户</h1>
-      <p className="mt-1 text-sm text-neutral-500">用于代为创建账号 仅支持 qq.com 邮箱</p>
+      <Link
+        to="/dashboard/users"
+        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white mb-4"
+      >
+        <ArrowLeft size={14} />
+        返回
+      </Link>
 
-      <form onSubmit={submit} className="mt-6 space-y-4 rounded-lg border border-neutral-200 bg-white p-6">
-        <Field label="邮箱">
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className={input}
-          />
-        </Field>
+      <h1 className="text-2xl font-medium text-gray-900 dark:text-white">添加用户</h1>
+      <p className="text-sm text-gray-500 mt-1 mb-6">无需邮箱验证 直接创建</p>
 
-        <Field label="昵称">
-          <input
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className={input}
-          />
-        </Field>
+      <Card className="p-6">
+        <form onSubmit={submit} className="space-y-4">
+          <Field label="邮箱" required hint="仅支持 qq.com">
+            <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+          </Field>
 
-        {err && <div className="text-sm text-red-600">{err}</div>}
-        {ok && <div className="text-sm text-green-700">{ok}</div>}
+          <Field label="昵称" required>
+            <Input required value={name} onChange={(e) => setName(e.target.value)} />
+          </Field>
 
-        <button
-          disabled={busy}
-          className="rounded-md bg-black text-white px-5 py-2.5 hover:bg-neutral-800 disabled:opacity-60"
-        >
-          {busy ? '请稍候' : '创建'}
-        </button>
-      </form>
+          {err && <p className="text-sm text-red-500">{err}</p>}
+
+          <Button busy={busy} type="submit">
+            创建
+          </Button>
+        </form>
+      </Card>
     </div>
-  )
-}
-
-const input = 'w-full rounded-md border border-neutral-300 px-3 py-2 outline-none focus:border-black'
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="block">
-      <span className="text-sm text-neutral-600">{label}</span>
-      <div className="mt-1">{children}</div>
-    </label>
   )
 }

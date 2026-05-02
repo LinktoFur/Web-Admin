@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
+import { ArrowLeft, Search, User } from 'lucide-react'
 import GroupForm, { type GroupFormValue } from '~/components/GroupForm'
 import { admin, type AdminUser } from '~/lib/api'
+import { Button, Input, Card } from '~/components/ui'
+import { useToast } from '~/lib/toast'
+import { cn } from '~/lib/cn'
 
 export default function AdminAddGroup() {
   const nav = useNavigate()
+  const toast = useToast()
   const [users, setUsers] = useState<AdminUser[]>([])
   const [userId, setUserId] = useState('')
   const [q, setQ] = useState('')
@@ -12,11 +17,19 @@ export default function AdminAddGroup() {
   const [err, setErr] = useState('')
 
   useEffect(() => {
-    admin.userList().then((r) => setUsers(r.users)).catch((e) => setErr(e.message))
+    admin
+      .userList()
+      .then((r) => setUsers(r.users))
+      .catch((e) => setErr(e.message))
   }, [])
 
-  async function runSearch() {
-    if (!q.trim()) return
+  async function runSearch(e: React.FormEvent) {
+    e.preventDefault()
+    if (!q.trim()) {
+      const r = await admin.userList().catch(() => null)
+      if (r) setUsers(r.users)
+      return
+    }
     try {
       const u = await admin.userSearch(q.trim())
       setUsers(u as any)
@@ -34,7 +47,8 @@ export default function AdminAddGroup() {
     setErr('')
     try {
       await admin.addGroup({ userId, ...v })
-      nav('/dashboard/users', { replace: true })
+      toast.ok('群组添加成功 已通知用户')
+      setTimeout(() => nav('/dashboard/users', { replace: true }), 600)
     } catch (e: any) {
       setErr(e.message)
     } finally {
@@ -44,52 +58,66 @@ export default function AdminAddGroup() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-semibold">代为添加群组</h1>
-      <p className="mt-1 text-sm text-neutral-500">为指定用户创建群组 直接通过审核</p>
+      <Link
+        to="/dashboard/users"
+        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white mb-4"
+      >
+        <ArrowLeft size={14} />
+        返回
+      </Link>
 
-      <div className="mt-6 rounded-lg border border-neutral-200 bg-white p-6">
-        <div className="text-sm font-medium">选择群主</div>
-        <div className="mt-3 flex gap-2">
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="搜索用户"
-            className="flex-1 rounded-md border border-neutral-300 px-3 py-2 outline-none focus:border-black"
-          />
-          <button
-            type="button"
-            onClick={runSearch}
-            className="rounded-md border border-neutral-300 px-4 py-2 text-sm hover:border-black"
-          >
+      <h1 className="text-2xl font-medium text-gray-900 dark:text-white">代为添加群组</h1>
+      <p className="text-sm text-gray-500 mt-1 mb-6">为指定用户创建群组 直接通过审核</p>
+
+      <Card className="p-6 mb-4">
+        <div className="text-sm font-medium text-gray-900 dark:text-white mb-3">选择群主</div>
+
+        <form onSubmit={runSearch} className="flex gap-2 mb-3">
+          <div className="relative flex-1">
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="搜索昵称或邮箱"
+              className="pl-11"
+            />
+          </div>
+          <Button type="submit" variant="secondary">
             搜索
-          </button>
-        </div>
+          </Button>
+        </form>
 
-        <div className="mt-3 max-h-48 overflow-y-auto rounded-md border border-neutral-200">
-          {users.map((u) => (
-            <label
-              key={u.id}
-              className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-neutral-50 cursor-pointer"
-            >
-              <input
-                type="radio"
-                name="owner"
-                checked={userId === u.id}
-                onChange={() => setUserId(u.id)}
-              />
-              <span className="font-medium">{u.name}</span>
-              <span className="text-neutral-500">{u.email}</span>
-            </label>
-          ))}
-          {users.length === 0 && (
-            <div className="px-3 py-4 text-sm text-neutral-500 text-center">无结果</div>
+        <div className="max-h-56 overflow-y-auto rounded-xl border border-gray-100 dark:border-white/5 divide-y divide-gray-100 dark:divide-white/5">
+          {users.length === 0 ? (
+            <div className="px-4 py-8 text-sm text-gray-500 text-center">无结果</div>
+          ) : (
+            users.map((u) => (
+              <button
+                type="button"
+                key={u.id}
+                onClick={() => setUserId(u.id)}
+                className={cn(
+                  'w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors text-left',
+                  userId === u.id
+                    ? 'bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-300'
+                    : 'hover:bg-gray-50 dark:hover:bg-white/5',
+                )}
+              >
+                <div className="w-7 h-7 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center text-gray-500">
+                  <User size={14} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium truncate">{u.name}</div>
+                  <div className="text-xs text-gray-500 truncate">{u.email}</div>
+                </div>
+                {userId === u.id && <span className="text-xs">✓</span>}
+              </button>
+            ))
           )}
         </div>
-      </div>
+      </Card>
 
-      <div className="mt-6">
-        <GroupForm onSubmit={submit} busy={busy} err={err} submitLabel="创建群组" />
-      </div>
+      <GroupForm onSubmit={submit} busy={busy} err={err} submitLabel="创建群组" />
     </div>
   )
 }
