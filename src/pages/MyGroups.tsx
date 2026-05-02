@@ -1,11 +1,13 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Menu, Transition } from '@headlessui/react'
-import { Plus, Pencil, Building2, Users as UsersIcon, Search, ArrowDownUp, ChevronDown, Check } from 'lucide-react'
-import { groups, type Group } from '~/lib/api'
+import { Plus, Pencil, Trash2, Building2, Users as UsersIcon, Search, ArrowDownUp, ChevronDown, Check } from 'lucide-react'
+import { groups, admin, type Group } from '~/lib/api'
 import { useAuth } from '~/lib/auth'
 import { Card, Tag, Empty, Input } from '~/components/ui'
 import Pagination from '~/components/Pagination'
+import ConfirmDialog from '~/components/ConfirmDialog'
+import { useToast } from '~/lib/toast'
 import { cn } from '~/lib/cn'
 
 const PAGE_SIZE = 10
@@ -34,11 +36,13 @@ function statusOf(g: Group): Status {
 
 export default function MyGroups() {
   const { me } = useAuth()
+  const toast = useToast()
   const isAdmin = me?.level === 'ADMIN'
 
   const [list, setList] = useState<Group[]>([])
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState('')
+  const [delTarget, setDelTarget] = useState<Group | null>(null)
 
   const [q, setQ] = useState('')
   const [sort, setSort] = useState<Sort>('new')
@@ -66,6 +70,16 @@ export default function MyGroups() {
   useEffect(() => {
     load()
   }, [])
+
+  async function del(g: Group) {
+    try {
+      await admin.deleteGroup(g.id)
+      toast.ok(`已删除 ${g.groupName}`)
+      await load()
+    } catch (e: any) {
+      toast.err(e.message)
+    }
+  }
 
   const filtered = useMemo(() => {
     const kw = q.trim().toLowerCase()
@@ -237,13 +251,24 @@ export default function MyGroups() {
                     </div>
                   </div>
                 </div>
-                <Link
-                  to={`/dashboard/groups/${g.id}/edit`}
-                  className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-brand-400 transition-colors shrink-0"
-                >
-                  <Pencil size={12} />
-                  编辑
-                </Link>
+                <div className="flex items-center gap-3 shrink-0">
+                  <Link
+                    to={`/dashboard/groups/${g.id}/edit`}
+                    className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-brand-400 transition-colors"
+                  >
+                    <Pencil size={12} />
+                    编辑
+                  </Link>
+                  {isAdmin && (
+                    <button
+                      onClick={() => setDelTarget(g)}
+                      className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-600 transition-colors"
+                    >
+                      <Trash2 size={12} />
+                      删除
+                    </button>
+                  )}
+                </div>
               </div>
             </Card>
           ))}
@@ -253,6 +278,16 @@ export default function MyGroups() {
       {filtered.length > PAGE_SIZE && (
         <Pagination page={safePage} total={totalPages} onChange={setPage} />
       )}
+
+      <ConfirmDialog
+        open={!!delTarget}
+        title="确认删除"
+        message={delTarget ? `确定要删除群组「${delTarget.groupName}」吗 此操作不可撤销` : ''}
+        confirmLabel="确认删除"
+        variant="danger"
+        onConfirm={async () => { if (delTarget) await del(delTarget) }}
+        onClose={() => setDelTarget(null)}
+      />
     </div>
   )
 }
