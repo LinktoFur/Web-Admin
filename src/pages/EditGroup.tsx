@@ -3,10 +3,13 @@ import { useNavigate, useParams, Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import GroupForm, { type GroupFormValue } from '~/components/GroupForm'
 import { groups, type Group } from '~/lib/api'
+import { useAuth } from '~/lib/auth'
 
 export default function EditGroup() {
   const { id } = useParams()
   const nav = useNavigate()
+  const { me } = useAuth()
+  const isAdmin = me?.level === 'ADMIN'
   const [g, setG] = useState<Group | null>(null)
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
@@ -17,12 +20,13 @@ export default function EditGroup() {
       .list()
       .then((r) => {
         const found = r.groups.find((x) => x.id === id)
-        if (!found) setErr('群组不存在或不属于你')
-        else setG(found)
+        if (!found) return setErr('群组不存在')
+        if (!isAdmin && found.userId !== me?.id) return setErr('群组不属于你')
+        setG(found)
       })
       .catch((e) => setErr(e.message))
       .finally(() => setLoading(false))
-  }, [id])
+  }, [id, isAdmin, me?.id])
 
   async function submit(v: GroupFormValue) {
     if (!g) return

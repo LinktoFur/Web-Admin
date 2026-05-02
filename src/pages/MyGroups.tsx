@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Menu, Transition } from '@headlessui/react'
 import { Plus, Pencil, Building2, Users as UsersIcon, Search, ArrowDownUp, ChevronDown, Check } from 'lucide-react'
 import { groups, type Group } from '~/lib/api'
+import { useAuth } from '~/lib/auth'
 import { Card, Tag, Empty, Input } from '~/components/ui'
 import Pagination from '~/components/Pagination'
 import { cn } from '~/lib/cn'
@@ -32,6 +33,9 @@ function statusOf(g: Group): Status {
 }
 
 export default function MyGroups() {
+  const { me } = useAuth()
+  const isAdmin = me?.level === 'ADMIN'
+
   const [list, setList] = useState<Group[]>([])
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState('')
@@ -50,7 +54,8 @@ export default function MyGroups() {
     setErr('')
     try {
       const r = await groups.list()
-      setList(r.groups)
+      const mine = isAdmin ? r.groups : r.groups.filter((g) => g.userId === me?.id)
+      setList(mine)
     } catch (e: any) {
       setErr(e.message)
     } finally {
