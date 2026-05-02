@@ -1,7 +1,13 @@
 import { useState } from 'react'
 import { Switch } from '@headlessui/react'
-import { Button, Input, Select, Field, Card } from '~/components/ui'
+import { Button, Input, Field, Card } from '~/components/ui'
+import StyledSelect from '~/components/StyledSelect'
 import { cn } from '~/lib/cn'
+
+const typeOptions = [
+  { value: 'SCHOOL' as const, label: '院校群' },
+  { value: 'REGION' as const, label: '地区联合群' },
+]
 
 export type GroupFormValue = {
   groupId: string
@@ -48,10 +54,7 @@ export default function GroupForm({ initial, onSubmit, busy, err, submitLabel, s
       <form onSubmit={submit} className="space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label="群类型" required>
-            <Select value={type} onChange={(e) => setType(e.target.value as any)}>
-              <option value="SCHOOL">院校群</option>
-              <option value="REGION">地区联合群</option>
-            </Select>
+            <StyledSelect value={type} onChange={setType} options={typeOptions} />
           </Field>
 
           <Field label="QQ 群号" required>
