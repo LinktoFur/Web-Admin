@@ -1,5 +1,85 @@
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
-  theme: { extend: {} },
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          50: '#FDFCF6',
+          100: '#F8F7F0',
+          200: '#EAE5D9',
+          300: '#DABBA1',
+          400: '#D17F38',
+          500: '#C88D5A',
+          600: '#B07545',
+          700: '#8A5A35',
+          800: '#664228',
+          900: '#452C1C',
+          950: '#2A1A10',
+        },
+        zinc: {
+          50: '#FDFCF6',
+          100: '#E6E2D8',
+          200: '#D1CEC7',
+          300: '#B4B0A9',
+          400: '#8A857D',
+          500: '#66615B',
+          600: '#4A4643',
+          700: '#35322F',
+          800: '#2A2826',
+          900: '#1F1D1B',
+          950: '#11100F',
+        },
+        gray: {
+          50: '#FDFCF6',
+          100: '#F5F4EE',
+          200: '#EAE5D9',
+          300: '#D6D1C4',
+          400: '#A39D93',
+          500: '#7A756C',
+          600: '#5C5851',
+          700: '#403C37',
+          800: '#222222',
+          900: '#1A1A1A',
+        },
+      },
+      fontFamily: {
+        sans: ['"LXGW WenKai"', 'Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+      },
+      boxShadow: {
+        warm: '0 8px 30px -4px rgba(0, 0, 0, 0.4)',
+        'warm-sm': '0 4px 15px -2px rgba(0, 0, 0, 0.3)',
+        diffuse: '0 10px 40px -10px rgba(0, 0, 0, 0.5)',
+        'diffuse-light': '0 12px 40px -10px rgba(0, 0, 0, 0.08), 0 4px 12px -5px rgba(0, 0, 0, 0.04)',
+        'diffuse-sm': '0 4px 20px -5px rgba(0, 0, 0, 0.4)',
+        'diffuse-sm-light': '0 4px 20px -5px rgba(0, 0, 0, 0.06)',
+        'focus-glow': '0 0 15px rgba(200, 141, 90, 0.2)',
+      },
+      animation: {
+        'slide-down': 'slideDown 0.3s ease-out',
+        'slide-up': 'slideUp 0.4s ease-out',
+        'zoom-in': 'zoomIn 0.3s ease-out',
+        'fade-in': 'fadeIn 0.3s ease-out',
+      },
+      keyframes: {
+        slideDown: {
+          '0%': { transform: 'translateY(-10px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(10px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        zoomIn: {
+          '0%': { transform: 'scale(0.98)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+      },
+    },
+  },
   plugins: [],
 }
