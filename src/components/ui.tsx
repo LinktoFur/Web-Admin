@@ -36,7 +36,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button'
 
 const inputBase =
-  'w-full rounded-lg border border-gray-200 dark:border-zinc-600 bg-gray-50 dark:bg-zinc-700 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400/30 transition-all'
+  'w-full rounded-lg border border-gray-200 dark:border-zinc-600 bg-gray-50 dark:bg-zinc-700 text-sm text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400/30 transition-all'
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
   ({ className, ...rest }, ref) => (
