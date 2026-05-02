@@ -167,23 +167,20 @@ export default function UserManagement() {
                   </td>
                   <td className="px-4 py-2.5">
                     <div className="flex gap-3 justify-end text-xs">
-                      {u.banned === 'true' ? (
-                        <button
-                          onClick={() => setAction({ kind: 'unban', u })}
-                          className="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300 hover:text-brand-400 transition-colors"
-                        >
-                          <ShieldCheck size={12} />
-                          解封
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => setAction({ kind: 'ban', u })}
-                          className="inline-flex items-center gap-1 text-red-500 hover:text-red-600 transition-colors"
-                        >
-                          <Ban size={12} />
-                          封禁
-                        </button>
-                      )}
+                      <button
+                        onClick={() => setAction({ kind: 'unban', u })}
+                        className="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300 hover:text-brand-400 transition-colors"
+                      >
+                        <ShieldCheck size={12} />
+                        解封
+                      </button>
+                      <button
+                        onClick={() => setAction({ kind: 'ban', u })}
+                        className="inline-flex items-center gap-1 text-red-500 hover:text-red-600 transition-colors"
+                      >
+                        <Ban size={12} />
+                        封禁
+                      </button>
                       {u.level !== 'ADMIN' && (
                         <button
                           onClick={() => setAction({ kind: 'admin', u })}
