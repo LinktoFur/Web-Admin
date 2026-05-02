@@ -4,7 +4,10 @@ import { UserPlus, Search, ShieldCheck, Ban, ShieldAlert, RotateCcw } from 'luci
 import { admin, type AdminUser } from '~/lib/api'
 import { Button, Input, Card, Tag, Empty } from '~/components/ui'
 import ConfirmDialog from '~/components/ConfirmDialog'
+import Pagination from '~/components/Pagination'
 import { useToast } from '~/lib/toast'
+
+const PAGE_SIZE = 10
 
 type Action =
   | { kind: 'ban'; u: AdminUser }
@@ -19,6 +22,7 @@ export default function UserManagement() {
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState('')
   const [action, setAction] = useState<Action>(null)
+  const [page, setPage] = useState(1)
 
   async function loadAll() {
     setLoading(true)
@@ -26,6 +30,7 @@ export default function UserManagement() {
     try {
       const r = await admin.userList()
       setList(r.users)
+      setPage(1)
     } catch (e: any) {
       setErr(e.message)
     } finally {
@@ -45,6 +50,7 @@ export default function UserManagement() {
     try {
       const u = await admin.userSearch(q.trim())
       setList(u as any)
+      setPage(1)
     } catch (e: any) {
       setErr(e.message)
     } finally {
@@ -82,30 +88,33 @@ export default function UserManagement() {
     }
   }
 
+  const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE))
+  const safePage = Math.min(page, totalPages)
+  const paged = list.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
+
   return (
     <div className="max-w-5xl">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-medium text-gray-900 dark:text-white">用户管理</h1>
-          <p className="text-sm text-gray-500 mt-1">管理所有注册用户</p>
-        </div>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-lg font-medium text-gray-900 dark:text-white">
+          用户管理 <span className="text-sm font-normal text-gray-500 ml-2">{list.length}</span>
+        </h1>
         <Link
           to="/dashboard/users/new"
-          className="inline-flex items-center gap-2 rounded-xl bg-brand-400 hover:bg-brand-600 text-white px-4 py-2.5 text-sm font-medium transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-brand-400 hover:bg-brand-600 text-white px-3 py-1.5 text-sm font-medium transition-colors"
         >
-          <UserPlus size={16} />
+          <UserPlus size={14} />
           添加用户
         </Link>
       </div>
 
-      <form onSubmit={runSearch} className="flex gap-2 mb-6">
+      <form onSubmit={runSearch} className="flex gap-2 mb-3">
         <div className="relative flex-1">
-          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="按昵称或邮箱搜索"
-            className="pl-11"
+            className="pl-9"
           />
         </div>
         <Button type="submit">搜索</Button>
@@ -122,8 +131,8 @@ export default function UserManagement() {
         </Button>
       </form>
 
-      {loading && <div className="text-gray-500">加载中</div>}
-      {err && <div className="text-red-500">{err}</div>}
+      {loading && <div className="text-sm text-gray-500">加载中</div>}
+      {err && <div className="text-sm text-red-500">{err}</div>}
 
       {!loading && !err && list.length === 0 && <Empty>暂无用户数据</Empty>}
 
@@ -132,22 +141,22 @@ export default function UserManagement() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 dark:bg-zinc-700/40 text-gray-600 dark:text-gray-300 text-left text-xs uppercase tracking-wider">
               <tr>
-                <th className="px-5 py-3 font-medium">昵称</th>
-                <th className="px-5 py-3 font-medium">邮箱</th>
-                <th className="px-5 py-3 font-medium">权限</th>
-                <th className="px-5 py-3 font-medium">状态</th>
-                <th className="px-5 py-3 font-medium text-right">操作</th>
+                <th className="px-4 py-2.5 font-medium">昵称</th>
+                <th className="px-4 py-2.5 font-medium">邮箱</th>
+                <th className="px-4 py-2.5 font-medium">权限</th>
+                <th className="px-4 py-2.5 font-medium">状态</th>
+                <th className="px-4 py-2.5 font-medium text-right">操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-              {list.map((u) => (
+              {paged.map((u) => (
                 <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                  <td className="px-5 py-3 font-medium text-gray-900 dark:text-white">{u.name}</td>
-                  <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{u.email}</td>
-                  <td className="px-5 py-3">
+                  <td className="px-4 py-2.5 font-medium text-gray-900 dark:text-white">{u.name}</td>
+                  <td className="px-4 py-2.5 text-gray-600 dark:text-gray-300">{u.email}</td>
+                  <td className="px-4 py-2.5">
                     {u.level === 'ADMIN' ? <Tag color="brand">管理员</Tag> : <Tag>普通</Tag>}
                   </td>
-                  <td className="px-5 py-3">
+                  <td className="px-4 py-2.5">
                     {u.banned === 'true' ? (
                       <Tag color="red">已封禁</Tag>
                     ) : u.verified === 'true' ? (
@@ -156,7 +165,7 @@ export default function UserManagement() {
                       <Tag>未验证</Tag>
                     )}
                   </td>
-                  <td className="px-5 py-3">
+                  <td className="px-4 py-2.5">
                     <div className="flex gap-3 justify-end text-xs">
                       {u.banned === 'true' ? (
                         <button
@@ -191,6 +200,10 @@ export default function UserManagement() {
             </tbody>
           </table>
         </Card>
+      )}
+
+      {list.length > PAGE_SIZE && (
+        <Pagination page={safePage} total={totalPages} onChange={setPage} />
       )}
 
       <ConfirmDialog
