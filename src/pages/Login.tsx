@@ -28,6 +28,7 @@ export default function Login() {
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
   const [info, setInfo] = useState('')
+  const [resendIn, setResendIn] = useState(0)
 
   async function loadCaptcha() {
     try {
@@ -44,12 +45,27 @@ export default function Login() {
     loadCaptcha()
   }, [])
 
+  useEffect(() => {
+    if (resendIn <= 0) return
+    const t = setTimeout(() => setResendIn((s) => s - 1), 1000)
+    return () => clearTimeout(t)
+  }, [resendIn])
+
   function reset(m: Mode) {
     setMode(m)
     setStep(1)
     setErr('')
     setInfo('')
     setCode('')
+    setResendIn(0)
+    loadCaptcha()
+  }
+
+  function backToStep1(infoMsg?: string) {
+    setStep(1)
+    setCode('')
+    setErr('')
+    setInfo(infoMsg ?? '')
     loadCaptcha()
   }
 
@@ -64,8 +80,13 @@ export default function Login() {
       } else {
         await auth.registerStep1({ email, name, captchaId, captchaAnswer })
       }
-      setInfo('验证码已发送到邮箱')
+      setInfo(
+        mode === 'login'
+          ? '如果该邮箱已注册 验证码已发送 请检查邮箱'
+          : '验证码已发送 请检查邮箱',
+      )
       setStep(2)
+      setResendIn(60)
     } catch (e: any) {
       setErr(e.message)
       loadCaptcha()
@@ -87,7 +108,12 @@ export default function Login() {
       await refresh()
       nav('/dashboard', { replace: true })
     } catch (e: any) {
-      setErr(e.message)
+      // 后端 5 次失败或过期会返回"已失效" 此时只能回 step 1 重新获取
+      if (typeof e.message === 'string' && e.message.includes('失效')) {
+        backToStep1('验证码已失效 请重新获取')
+      } else {
+        setErr(e.message)
+      }
     } finally {
       setBusy(false)
     }
@@ -181,14 +207,15 @@ export default function Login() {
             </form>
           ) : (
             <form onSubmit={submitStep2} className="space-y-4">
-              <Field label="邮箱验证码" required>
+              <Field label="邮箱验证码" hint="8位字母数字 5分钟内有效" required>
                 <Input
                   required
                   value={code}
-                  onChange={(e) => setCode(e.target.value)}
+                  onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
                   className="text-center font-mono text-lg tracking-widest"
-                  maxLength={6}
-                  inputMode="numeric"
+                  maxLength={8}
+                  autoComplete="one-time-code"
+                  placeholder="如 ABCD2345"
                 />
               </Field>
 
@@ -201,10 +228,11 @@ export default function Login() {
 
               <button
                 type="button"
-                onClick={() => setStep(1)}
-                className="block w-full text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                disabled={resendIn > 0}
+                onClick={() => backToStep1()}
+                className="block w-full text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:text-gray-500"
               >
-                返回上一步
+                {resendIn > 0 ? `重新获取验证码 (${resendIn}s)` : '重新获取验证码'}
               </button>
             </form>
           )}
